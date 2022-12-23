@@ -126,7 +126,6 @@ bool adxl355_verify_part_id(ADXL355 *sensor)
 */ 
 bool adxl355_init(ADXL355 *sensor, const nrf_drv_twi_t *m_twi)
 {   
-
   sensor->mHandle = m_twi;
   sensor->mTransferDone = false;
 
@@ -168,7 +167,6 @@ bool adxl355_ReadAcc(ADXL355 *sensor, int32_t *pACC_X , int32_t *pACC_Y , int32_
 	
     ret = true;
   }		
-  
   
   return ret;
 }
