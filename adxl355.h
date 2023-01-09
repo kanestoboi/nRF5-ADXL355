@@ -81,6 +81,7 @@ typedef struct ADXL355
   const nrf_drv_twi_t *mHandle;
 
   bool mTransferDone;
+  bool initialised;
 } ADXL355;
 
 typedef enum ADXL_RANGE
