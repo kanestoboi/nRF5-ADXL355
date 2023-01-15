@@ -52,10 +52,10 @@ bool adxl355_register_read(ADXL355 *sensor, uint8_t register_address, uint8_t * 
         return false;
     }
 
-    //set the flag again so that we can read data from the MPU6050's internal register
+    //set the flag again so that we can read data from the ADXL355's internal register
     sensor->mTransferDone = false;
 	  
-    // Receive the data from the MPU6050
+    // Receive the data from the ADXL355
     err_code = nrf_drv_twi_rx(sensor->mHandle, ADXL355_ADDRESS, destination, number_of_bytes);
 		
     //wait until the transmission is completed
