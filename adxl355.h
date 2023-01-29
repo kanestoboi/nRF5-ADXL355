@@ -1,7 +1,7 @@
-#include "nrf_drv_twi.h"
-
 #ifndef ADXL355_H__
 #define ADXL355_H__
+
+#include "nrf_drv_twi.h"
 
 #define ADXL355_ADDRESS_LEN  1         //ADXL355
 #define ADXL355_ADDRESS     0x1D       //ADXL355 Device Address
