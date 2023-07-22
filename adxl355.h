@@ -1,7 +1,7 @@
-#include "nrf_drv_twi.h"
-
 #ifndef ADXL355_H__
 #define ADXL355_H__
+
+#include "nrf_drv_twi.h"
 
 #define ADXL355_ADDRESS_LEN  1         //ADXL355
 #define ADXL355_ADDRESS     0x1D       //ADXL355 Device Address
@@ -76,6 +76,21 @@
 #define ADXL355_ODR_LPF_7_813HZ_1_953HZ   0x09
 #define ADXL355_ODR_LPF_3_906HZ_0_977HZ   0x0A
 
+// Bit Masks to pass into adxl_interruptEnable()
+#define ADXL355_INT_MAP_RDY_EN1  0x01
+#define ADXL355_INT_MAP_FULL_EN1 0x02
+#define ADXL355_INT_MAP_OVR_EN1  0x04
+#define ADXL355_INT_MAP_ACT_EN1  0x08
+#define ADXL355_INT_MAP_RDY_EN2  0x10
+#define ADXL355_INT_MAP_FULL_EN2 0x20
+#define ADXL355_INT_MAP_OVR_EN2  0x40
+#define ADXL355_INT_MAP_ACT_EN2  0x80
+
+
+#define ADXL355_ACTIVITY_EN_ACT_X   0x01
+#define ADXL355_ACTIVITY_EN_ACT_Y   0x02
+#define ADXL355_ACTIVITY_EN_ACT_Z   0x04
+
 typedef struct ADXL355 
 {
   const nrf_drv_twi_t *mHandle;
@@ -90,6 +105,9 @@ typedef enum ADXL_RANGE
   ADXL_RANGE_4G = 2,
   ADXL_RANGE_8G = 3
 }ADXL_RANGE; 
+
+
+
 
 
 /**
@@ -196,26 +214,14 @@ bool adxl355_setPowerControl(ADXL355 *sensor, uint8_t flags);
   @param[in] sensor Pointer to ADXL355 structure
   @param[in] flags flags for setting the filter setting
               Valid Flags:
-              - ADXL355_HPF_CORNER_DISABLED
-              - ADXL335_HPF_CORNER_24_7
-              - ADXL355_HPF_CORNER_6_2084
-              - ADXL355_HPF_CORNER_1_5545
-              - ADXL355_HPF_CORNER_0_3862
-              - ADXL355_HPF_CORNER_0_0954
-              - ADXL355_HPF_CORNER_0_0238
-
-              - ADXL355_ODR_LPF_4000HZ_1000HZ
-              - ADXL355_ODR_LPF_2000HZ_500HZ
-              - ADXL355_ODR_LPF_1000HZ_250HZ
-              - ADXL355_ODR_LPF_500HZ_125HZ
-              - ADXL355_ODR_LPF_250HZ_62_5HZ
-              - ADXL355_ODR_LPF_125HZ_31_25HZ
-              - ADXL355_ODR_LPF_62_5HZ_15_625HZ
-              - ADXL355_ODR_LPF_31_25HZ_7_813HZ
-              - ADXL355_ODR_LPF_15_625HZ_3_906HZ
-              - ADXL355_ODR_LPF_7_813HZ_1_953HZ
-              - ADXL355_ODR_LPF_3_906HZ_0_977HZ
-
+              - ADXL355_INT_MAP_RDY_EN1
+              - ADXL355_INT_MAP_FULL_EN1
+              - ADXL355_INT_MAP_OVR_EN1
+              - ADXL355_INT_MAP_ACT_EN1
+              - ADXL355_INT_MAP_RDY_EN2
+              - ADXL355_INT_MAP_FULL_EN2
+              - ADXL355_INT_MAP_OVR_EN2
+              - ADXL355_INT_MAP_ACT_EN2 
   @retval true flags were successfully written to device
   @retval false writing to filter settings registers failed
 */
@@ -228,7 +234,58 @@ bool adxl355_setFilterSettings(ADXL355 *sensor, uint8_t flags);
   @retval true Acceleration range was sucessfully written to device
   @retval false Setting acceleration range failed
 */
-bool adxl_setRange(ADXL355 *sensor, ADXL_RANGE rangeMode);
+bool adxl355_setRange(ADXL355 *sensor, ADXL_RANGE rangeMode);
+
+/**
+  @brief Function to set components will be used in the activity detection algorithm.
+  @param[in] sensor Pointer to ADXL355 structure
+  @param[in] flags the flags indicating the accelerometer components used in the activity detection algorithm. 
+              Valid Flags:
+              - ADXL355_ACTIVITY_EN_ACT_X   0x01
+              - ADXL355_ACTIVITY_EN_ACT_Y   0x02
+              - ADXL355_ACTIVITY_EN_ACT_Z   0x04
+  @retval true flags were sucessfully written to device
+  @retval false faied to write flasgs
+*/
+bool adxl355_setActivityDetectionComponents(ADXL355 *sensor, uint8_t flags);
+
+/**
+  @brief Function to set the acceleration threshold that will trigger the activity counter.
+  @param[in] sensor Pointer to ADXL355 structure
+  @param[in] threshold the threshold that will trigger the activity counter. 
+  @retval true threshold was sucessfully written to device
+  @retval false failed to write threshold to device
+*/
+bool adxl355_setActivityThreshold(ADXL355 *sensor, uint16_t threshold);
+
+/**
+  @brief Function to set the number of consecutive events above threshold required to detect activity and trigger interrupt.
+  @param[in] sensor Pointer to ADXL355 structure
+  @param[in] count The count value that will trigger an interrupt. 
+  @retval true flags were sucessfully written to device
+  @retval false failed set the activity count threshold
+*/
+bool adxl355_setActivityCountThreshold(ADXL355 *sensor, uint8_t count);
+
+/**
+  @brief Function to set what can generate interrupts on the interupt pins.
+  @param[in] sensor Pointer to ADXL355 structure
+  @param[in] flags the flags of interrupts to enable. 
+              Valid Flags:
+              - ADXL355_INT_MAP_RDY_EN1
+              - ADXL355_INT_MAP_FULL_EN1
+              - ADXL355_INT_MAP_OVR_EN1
+              - ADXL355_INT_MAP_ACT_EN1
+              - ADXL355_INT_MAP_RDY_EN2
+              - ADXL355_INT_MAP_FULL_EN2
+              - ADXL355_INT_MAP_OVR_EN2
+              - ADXL355_INT_MAP_ACT_EN2
+  @retval true flags were sucessfully written to device
+  @retval false faied to write flasgs
+*/
+bool adxl355_interruptEnable(ADXL355 *sensor, uint8_t flags);
+
+
 
 #endif
 
