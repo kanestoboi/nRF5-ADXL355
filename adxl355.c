@@ -222,9 +222,32 @@ bool adxl355_setFilterSettings(ADXL355 *sensor, uint8_t flags)
   return adxl355_register_write(sensor, ADXL355_FILTER_REG, flags);
 }
 
-bool adxl_setRange(ADXL355 *sensor, ADXL_RANGE rangeMode)
+bool adxl355_setRange(ADXL355 *sensor, ADXL_RANGE rangeMode)
 {
   uint8_t bitMask = 0;
   bitMask |= rangeMode;
   return adxl355_register_write(sensor, ADXL355_RANGE_REG, bitMask);
+}
+
+bool adxl355_setActivityDetectionComponents(ADXL355 *sensor, uint8_t flags)
+{
+	return adxl355_register_write(sensor, ADXL355_ACT_EN_REG, flags);
+}
+
+bool adxl355_setActivityThreshold(ADXL355 *sensor, uint16_t threshold)
+{
+	bool transferSuccess = false;
+	transferSuccess = adxl355_register_write(sensor, ADXL355_ACT_THRESH_H_REG, (uint8_t)(threshold >> 8));
+
+	return transferSuccess && adxl355_register_write(sensor, ADXL355_ACT_THRESH_L_REG, (uint8_t)(threshold));
+}
+
+bool adxl355_setActivityCountThreshold(ADXL355 *sensor, uint8_t count)
+{
+	return adxl355_register_write(sensor, ADXL355_ACT_COUNT_REG, count);
+}
+
+bool adxl355_interruptEnable(ADXL355 *sensor, uint8_t flags)
+{
+  return adxl355_register_write(sensor, ADXL355_INT_MAP_REG, flags);
 }
